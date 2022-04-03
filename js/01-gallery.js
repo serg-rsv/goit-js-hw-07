@@ -5,25 +5,52 @@ console.log(galleryItems);
 
 const galleryRef = document.querySelector('.gallery');
 
-galleryRef.insertAdjacentHTML('afterbegin', createGalleryMarkup(galleryItems));
+const imgLigthBox = {
+  imgModal: null,
 
+  createModal(e) {
+    this.imgModal = basicLightbox.create(`
+      <div class="modal">
+          <img src="${e.target.dataset.source}" width="800" height="600">
+      </div>
+  `);
+  },
+
+  showModal() {
+    this.imgModal?.show();
+    document.body.style.overflow = 'hidden';
+  },
+
+  closeModal() {
+    this.imgModal?.close();
+    document.body.style.overflow = 'auto';
+  },
+
+  isVisible() {
+    return this.imgModal?.visible();
+  },
+};
+
+galleryRef.insertAdjacentHTML('afterbegin', createGalleryMarkup(galleryItems));
 galleryRef.addEventListener('click', onClickGalleryImage);
+
+window.addEventListener('keyup', onPushEscKey);
 
 function createGalleryMarkup(items) {
   return items
     .map(({ description, original, preview }) => {
       return `
-<div class="gallery__item">
-  <a class="gallery__link" href="${original}">
-    <img
-      class="gallery__image"
-      src="${preview}"
-      data-source="${original}"
-      alt="${description}"
-    />
-  </a>
-</div >
-`;
+        <div class="gallery__item">
+          <a class="gallery__link" href="${original}">
+            <img
+              class="gallery__image"
+              src="${preview}"
+              data-source="${original}"
+              alt="${description}"
+            />
+          </a>
+        </div >
+        `;
     })
     .join('');
 }
@@ -31,17 +58,16 @@ function createGalleryMarkup(items) {
 function onClickGalleryImage(e) {
   e.preventDefault();
 
-  const isImage = galleryRef.querySelector('.gallery__image');
-
-  if (!isImage) {
+  if (e.target.nodeName !== 'IMG') {
     return;
   }
 
-  const instance = basicLightbox.create(`
-      <div class="modal">
-          <img src="${e.target.dataset.source}" width="800" height="600">
-      </div>
-  `);
+  imgLigthBox.createModal(e);
+  imgLigthBox.showModal();
+}
 
-  instance.show();
+function onPushEscKey(e) {
+  if (imgLigthBox.isVisible() && e.key === 'Escape') {
+    imgLigthBox.closeModal();
+  }
 }
