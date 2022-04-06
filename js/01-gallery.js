@@ -34,8 +34,6 @@ const imgLigthBox = {
 galleryRef.insertAdjacentHTML('afterbegin', createGalleryMarkup(galleryItems));
 galleryRef.addEventListener('click', onClickGalleryImage);
 
-window.addEventListener('keyup', onPushEscKey);
-
 function createGalleryMarkup(items) {
   return items
     .map(({ description, original, preview }) => {
@@ -64,10 +62,14 @@ function onClickGalleryImage(e) {
 
   imgLigthBox.createModal(e);
   imgLigthBox.showModal();
+
+  window.addEventListener('keydown', onPushEscKey);
 }
 
 function onPushEscKey(e) {
   if (imgLigthBox.isVisible() && e.key === 'Escape') {
     imgLigthBox.closeModal();
+
+    window.addEventListener('keydown', onPushEscKey);
   }
 }
